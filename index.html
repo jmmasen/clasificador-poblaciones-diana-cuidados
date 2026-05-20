@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clasificador de Poblaciones Diana · Servicios Enfermeros SNS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F7F5F0;--surface:#FFF;--surface-2:#F0EDE6;
+  --t1:#1A1814;--t2:#5A5650;--t3:#9A958E;
+  --border:rgba(26,24,20,.10);--border-med:rgba(26,24,20,.18);
+  --accent:#2D5A3D;
+  --need-bg:#FAEEDA;--need-bd:#BA7517;--need-tx:#633806;
+  --clin-bg:#E1F5EE;--clin-bd:#1D9E75;--clin-tx:#04342C;
+  --soc-bg:#EEEDFE;--soc-bd:#7F77DD;--soc-tx:#26215C;
+  --ctx-bg:#E6F1FB;--ctx-bd:#378ADD;--ctx-tx:#042C53;
+}
+html{font-size:15px}
+body{background:var(--bg);color:var(--t1);font-family:'DM Sans',sans-serif;min-height:100vh;padding:2rem 1rem 4rem}
+.container{max-width:800px;margin:0 auto}
+header{margin-bottom:2rem;padding-bottom:1.25rem;border-bottom:1px solid var(--border)}
+.eyebrow{font-size:11px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:.4rem}
+h1{font-family:'Fraunces',serif;font-size:clamp(1.5rem,3.5vw,2rem);font-weight:400;line-height:1.2;margin-bottom:.4rem}
+h1 em{font-style:italic;color:var(--accent)}
+.sub{font-size:13px;color:var(--t2);max-width:560px}
+.prog{display:flex;gap:4px;margin-bottom:1.5rem;align-items:center}
+.pb{height:3px;flex:1;border-radius:99px;background:var(--border-med);transition:background .2s}
+.pb.done{background:var(--accent)}
+.prog span{font-size:11px;color:var(--t3);margin-left:4px;white-space:nowrap}
+.dims-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+@media(max-width:560px){.dims-grid{grid-template-columns:1fr}}
+.dim{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:.875rem 1rem;box-shadow:0 1px 3px rgba(26,24,20,.06)}
+.dim.transversal{border-color:var(--soc-bd);background:linear-gradient(135deg,#FAFBFF,#F2F4FC)}
+.dim-label{display:flex;align-items:center;gap:6px;font-size:10.5px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:var(--t3);margin-bottom:10px}
+.t-pill{margin-left:auto;font-size:9.5px;padding:2px 8px;border-radius:999px;background:var(--soc-bg);color:var(--soc-tx);border:1px solid var(--soc-bd)}
+.opts{display:flex;flex-direction:column;gap:4px}
+.opts.row{flex-direction:row;flex-wrap:wrap}
+.opt{display:flex;align-items:center;gap:9px;padding:7px 10px;border-radius:10px;border:1px solid transparent;cursor:pointer;font-size:13px;color:var(--t2);user-select:none;transition:background .1s,border-color .1s,color .1s;-webkit-tap-highlight-color:transparent}
+.opt:hover{background:var(--bg)}
+.opts.row .opt{flex:1;min-width:90px;justify-content:center}
+.radio{width:15px;height:15px;border-radius:50%;border:1.5px solid var(--border-med);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .1s}
+.radio::after{content:'';width:7px;height:7px;border-radius:50%;background:transparent;transition:background .1s}
+.opt.s-need{background:var(--need-bg);border-color:var(--need-bd);color:var(--need-tx)}
+.opt.s-need .radio{border-color:var(--need-bd)}.opt.s-need .radio::after{background:var(--need-bd)}
+.opt.s-clin{background:var(--clin-bg);border-color:var(--clin-bd);color:var(--clin-tx)}
+.opt.s-clin .radio{border-color:var(--clin-bd)}.opt.s-clin .radio::after{background:var(--clin-bd)}
+.opt.s-soc{background:var(--soc-bg);border-color:var(--soc-bd);color:var(--soc-tx)}
+.opt.s-soc .radio{border-color:var(--soc-bd)}.opt.s-soc .radio::after{background:var(--soc-bd)}
+.opt.s-ctx{background:var(--ctx-bg);border-color:var(--ctx-bd);color:var(--ctx-tx)}
+.opt.s-ctx .radio{border-color:var(--ctx-bd)}.opt.s-ctx .radio::after{background:var(--ctx-bd)}
+.result{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.25rem;min-height:80px;box-shadow:0 1px 3px rgba(26,24,20,.06);transition:border-color .25s;margin-top:1.25rem}
+.hint{display:flex;align-items:center;gap:8px;color:var(--t3);font-size:13px;min-height:48px}
+.pop-header{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:8px}
+.pop-name{font-family:'Fraunces',serif;font-size:16px;font-weight:400;color:var(--t1);line-height:1.35}
+.pop-badge{font-size:11px;font-weight:500;padding:4px 11px;border-radius:999px;border:1px solid;white-space:nowrap;flex-shrink:0}
+.pop-desc{font-size:13px;color:var(--t2);line-height:1.65;margin-bottom:12px}
+.dim-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
+.dtag{font-size:11px;padding:3px 10px;border-radius:999px;border:1px solid}
+.dtag-need{background:var(--need-bg);border-color:var(--need-bd);color:var(--need-tx)}
+.dtag-clin{background:var(--clin-bg);border-color:var(--clin-bd);color:var(--clin-tx)}
+.dtag-soc{background:var(--soc-bg);border-color:var(--soc-bd);color:var(--soc-tx)}
+.dtag-ctx{background:var(--ctx-bg);border-color:var(--ctx-bd);color:var(--ctx-tx)}
+.soc-alert{margin-top:10px;padding:10px 14px;border-radius:10px;background:var(--soc-bg);border:1px solid var(--soc-bd);font-size:12.5px;color:var(--soc-tx);line-height:1.6}
+.no-match{background:#FEF4F4;border:1px solid #E8AAAA;border-radius:10px;padding:1rem 1.1rem;font-size:13px;color:#6A1A1A;line-height:1.6}
+.no-match strong{display:block;font-weight:500;margin-bottom:4px}
+.partial-title{font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;color:#A84040;margin:10px 0 5px;font-weight:500}
+.partial-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid #F5CBCB;font-size:12.5px;color:#6A1A1A;gap:8px}
+.partial-row:last-child{border-bottom:none}
+.miss-tag{font-size:10.5px;padding:2px 8px;border-radius:999px;background:#FEF4F4;color:#8A2020;border:1px solid #E8AAAA;white-space:nowrap;flex-shrink:0}
+.multi-match{font-size:13px;color:var(--t2);margin-bottom:10px}
+.multi-card{border:1px solid;border-radius:10px;padding:10px 13px;margin-bottom:8px}
+.multi-card-name{font-family:'Fraunces',serif;font-size:14px;font-weight:400;margin-bottom:3px}
+.multi-card-desc{font-size:12px;line-height:1.55;opacity:.85}
+.actions{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.btn{font-family:'DM Sans',sans-serif;font-size:12.5px;padding:7px 16px;border-radius:10px;border:1px solid var(--border-med);background:transparent;color:var(--t2);cursor:pointer;transition:background .12s,color .12s}
+.btn:hover{background:var(--bg);color:var(--t1)}
+footer{margin-top:3rem;padding-top:1.25rem;border-top:1px solid var(--border);font-size:11.5px;color:var(--t3);line-height:1.7}
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+  <div class="eyebrow">Servicios Enfermeros · Sistema Nacional de Salud</div>
+  <h1>Clasificador de <em>Poblaciones Diana</em></h1>
+  <p class="sub">Selecciona un valor en cada dimensión para identificar la población diana correspondiente (8 grupos).</p>
+</header>
+
+<div class="prog">
+  <div class="pb" id="ps-need"></div><div class="pb" id="ps-clin"></div>
+  <div class="pb" id="ps-soc"></div><div class="pb" id="ps-ctx"></div>
+  <span id="prog-label">0 de 4</span>
+</div>
+
+<div class="dims-grid">
+  <div class="dim">
+    <div class="dim-label">&#9651; Nivel de necesidad de cuidados</div>
+    <div class="opts" id="grp-need">
+      <div class="opt" data-g="need" data-v="alta"><span class="radio"></span>Alta — cuidados continuos, monitorización</div>
+      <div class="opt" data-g="need" data-v="media-alta"><span class="radio"></span>Media-alta</div>
+      <div class="opt" data-g="need" data-v="media"><span class="radio"></span>Media — seguimiento estructurado</div>
+      <div class="opt" data-g="need" data-v="baja"><span class="radio"></span>Baja — promoción y autocuidado</div>
+    </div>
+  </div>
+  <div class="dim">
+    <div class="dim-label">&#9650; Complejidad sanitaria</div>
+    <div class="opts" id="grp-clin">
+      <div class="opt" data-g="clin" data-v="muy-alta"><span class="radio"></span>Muy alta</div>
+      <div class="opt" data-g="clin" data-v="alta"><span class="radio"></span>Alta</div>
+      <div class="opt" data-g="clin" data-v="media"><span class="radio"></span>Media</div>
+      <div class="opt" data-g="clin" data-v="baja"><span class="radio"></span>Baja</div>
+      <div class="opt" data-g="clin" data-v="muy-baja"><span class="radio"></span>Muy baja</div>
+    </div>
+  </div>
+</div>
+
+<div class="dim transversal" style="margin-bottom:10px">
+  <div class="dim-label">&#9632; Complejidad social <span class="t-pill">Dimensión transversal</span></div>
+  <div class="opts row" id="grp-soc">
+    <div class="opt" data-g="soc" data-v="alta"><span class="radio"></span>Alta</div>
+    <div class="opt" data-g="soc" data-v="moderada"><span class="radio"></span>Moderada</div>
+    <div class="opt" data-g="soc" data-v="baja"><span class="radio"></span>Baja</div>
+  </div>
+</div>
+
+<div class="dim" style="margin-bottom:0">
+  <div class="dim-label">&#9632; Contexto de atención</div>
+  <div class="opts" id="grp-ctx">
+    <div class="opt" data-g="ctx" data-v="criticos"><span class="radio"></span>Emergencias extrahospitalarias, urgencias y críticos</div>
+    <div class="opt" data-g="ctx" data-v="hosp-ingreso"><span class="radio"></span>Hospitalario — ingreso</div>
+    <div class="opt" data-g="ctx" data-v="hosp-dia"><span class="radio"></span>Hospitalario — hospital de día</div>
+    <div class="opt" data-g="ctx" data-v="hosp-ambulatorio"><span class="radio"></span>Hospitalario — ambulatorio</div>
+    <div class="opt" data-g="ctx" data-v="primaria"><span class="radio"></span>Atención primaria</div>
+    <div class="opt" data-g="ctx" data-v="domicilio"><span class="radio"></span>Domicilio</div>
+    <div class="opt" data-g="ctx" data-v="comunitario"><span class="radio"></span>Comunitario</div>
+    <div class="opt" data-g="ctx" data-v="ss-institucion"><span class="radio"></span>Sociosanitario — institucionalización</div>
+    <div class="opt" data-g="ctx" data-v="ss-semi"><span class="radio"></span>Sociosanitario — semi-internado</div>
+    <div class="opt" data-g="ctx" data-v="todos"><span class="radio"></span>Todos los ámbitos</div>
+  </div>
+</div>
+
+<div class="result" id="rbox">
+  <div class="hint" id="hint">&#9679; Completa las 4 dimensiones para identificar la población diana</div>
+  <div id="rc" style="display:none"></div>
+</div>
+
+<footer>
+  <strong style="color:var(--t2);font-weight:500">Nota metodológica.</strong>
+  La complejidad social es dimensión transversal (Alta/Moderada/Baja): no determina la población diana pero modifica el plan de cuidados. La nueva población «Cronicidad no compleja» (4.3b) cubre personas con enfermedades crónicas de baja-media complejidad sanitaria que requieren seguimiento y fomento del autocuidado. Los niveles de complejidad sanitaria se alinean con los GMAs. Clasificación sujeta a consenso clínico.
+</footer>
+</div>
+
+<script>
+const POPS = [
+  {id:1,short:"Alta complejidad aguda",name:"Cuidados agudos de alta complejidad clínica",
+   bg:"#FAECE7",bd:"#D85A30",tx:"#4A1B0C",
+   desc:"Procesos agudos graves o inestables que requieren cuidados intensivos, vigilancia continua y capacidad de respuesta inmediata.",
+   need:["alta"],clin:["muy-alta"],ctx:["criticos","hosp-ingreso"]},
+  {id:2,short:"Procesos agudos",name:"Procesos agudos",
+   bg:"#FEF8E8",bd:"#BA7517",tx:"#412402",
+   desc:"Episodio agudo que requiere intervención sanitaria durante un periodo limitado de tiempo.",
+   need:["media"],clin:["alta","media"],ctx:["hosp-ingreso","hosp-dia","criticos","primaria","ss-institucion"]},
+  {id:3,short:"Cronicidad compleja",name:"Condiciones crónicas complejas",
+   bg:"#EEEDFE",bd:"#7F77DD",tx:"#26215C",
+   desc:"Enfermedades crónicas, frecuentemente pluripatológicas, que requieren seguimiento longitudinal y coordinación entre niveles.",
+   need:["alta"],clin:["alta","muy-alta"],ctx:["primaria","domicilio","hosp-ingreso","hosp-dia","hosp-ambulatorio","ss-institucion","ss-semi"]},
+  {id:4,short:"Cronicidad no compleja",name:"Condiciones crónicas no complejas",
+   bg:"#F0EDFB",bd:"#A99EE0",tx:"#3A2F7A",
+   desc:"Enfermedades crónicas que requieren seguimiento longitudinal, autocuidado, promoción y prevención.",
+   need:["media"],clin:["baja","media"],ctx:["primaria","hosp-ambulatorio","hosp-dia"]},
+  {id:5,short:"Fragilidad / dependencia",name:"Fragilidad, dependencia o discapacidad",
+   bg:"#E1F5EE",bd:"#1D9E75",tx:"#04342C",
+   desc:"Limitación funcional o cognitiva que requiere apoyo continuado. Si la complejidad sanitaria es alta o muy alta, valorar reclasificación como cronicidad compleja.",
+   need:["media","media-alta"],clin:["baja","media"],ctx:["domicilio","primaria","ss-institucion","ss-semi"]},
+  {id:6,short:"Transiciones asistenciales",name:"Transiciones asistenciales",
+   bg:"#E6F1FB",bd:"#378ADD",tx:"#042C53",
+   desc:"Cambios entre dispositivos asistenciales con riesgo de discontinuidad en los cuidados.",
+   need:["media","media-alta"],clin:["media","alta","muy-alta"],ctx:["todos"]},
+  {id:7,short:"Cuidados paliativos",name:"Necesidades paliativas o en final de vida",
+   bg:"#F1EFE8",bd:"#888780",tx:"#2C2C2A",
+   desc:"Enfermedad avanzada que requiere control sintomático, confort y acompañamiento de la persona y su entorno.",
+   need:["alta"],clin:["alta","muy-alta"],ctx:["domicilio","hosp-ingreso","ss-institucion","ss-semi","primaria"]},
+  {id:8,short:"Promoción / prevención",name:"Promoción de la salud y prevención",
+   bg:"#EAF3DE",bd:"#639922",tx:"#173404",
+   desc:"Foco en la prevención de enfermedades, educación para la salud y fomento del autocuidado.",
+   need:["baja"],clin:["baja","muy-baja"],ctx:["primaria","comunitario"]},
+];
+
+const SOC_MSG={alta:"Complejidad social alta — los determinantes sociales condicionan significativamente el cuidado (red de apoyo débil, barreras de acceso, baja alfabetización en salud). Se recomienda coordinación con trabajo social.",moderada:"Complejidad social moderada — existen factores sociales a considerar en el plan de cuidados. Valorar intervención sociosanitaria específica.",baja:null};
+const SC={need:"s-need",clin:"s-clin",soc:"s-soc",ctx:"s-ctx"};
+const st={need:null,clin:null,soc:null,ctx:null};
+
+document.querySelectorAll(".opt").forEach(el=>{
+  el.addEventListener("click",()=>{
+    const g=el.dataset.g,v=el.dataset.v;
+    document.querySelectorAll(`[data-g="${g}"]`).forEach(o=>o.classList.remove(SC[g]));
+    st[g]=st[g]===v?null:v;
+    if(st[g])el.classList.add(SC[g]);
+    updateProg();classify();
+  });
+});
+
+function updateProg(){
+  ["need","clin","soc","ctx"].forEach(k=>document.getElementById("ps-"+k).classList.toggle("done",!!st[k]));
+  document.getElementById("prog-label").textContent=Object.values(st).filter(Boolean).length+" de 4";
+}
+
+function ctxMatch(p){return p.ctx.some(c=>c==="todos"||c===st.ctx);}
+
+function fmtCtx(v){
+  return({
+    "criticos":"emergencias y críticos","hosp-ingreso":"hospitalario — ingreso","hosp-dia":"hosp. día",
+    "hosp-ambulatorio":"hosp. ambulatorio","primaria":"atención primaria","domicilio":"domicilio",
+    "comunitario":"comunitario","ss-institucion":"ss — institucionalización","ss-semi":"ss — semi-internado","todos":"todos los ámbitos"
+  })[v]||v;
+}
+
+function classify(){
+  const done=Object.values(st).filter(Boolean).length;
+  const rbox=document.getElementById("rbox"),hint=document.getElementById("hint"),rc=document.getElementById("rc");
+  if(done<4){
+    hint.style.display="flex";rc.style.display="none";
+    rbox.style.borderColor="var(--border)";
+    const r=4-done;
+    hint.textContent=(r===4?"Completa las 4 dimensiones para identificar la población diana":`Falta${r>1?"n":""} ${r} dimensión${r>1?"es":""} por seleccionar`);
+    return;
+  }
+  const matches=POPS.filter(p=>p.need.includes(st.need)&&p.clin.includes(st.clin)&&ctxMatch(p));
+  hint.style.display="none";rc.style.display="block";
+  const socNote=SOC_MSG[st.soc];
+  const socHTML=socNote?`<div class="soc-alert">&#9432; ${socNote}</div>`:"";
+  const tags=`<div class="dim-tags"><span class="dtag dtag-need">Necesidad: ${st.need}</span><span class="dtag dtag-clin">Sanitaria: ${st.clin}</span><span class="dtag dtag-soc">Social: ${st.soc}</span><span class="dtag dtag-ctx">Contexto: ${fmtCtx(st.ctx)}</span></div>`;
+  const resetBtn=`<button class="btn" onclick="resetAll()">&#8635; Limpiar selección</button>`;
+
+  if(matches.length===1){
+    const p=matches[0];rbox.style.borderColor=p.bd;
+    rc.innerHTML=`<div class="pop-header"><div class="pop-name">${p.name}</div><span class="pop-badge" style="background:${p.bg};border-color:${p.bd};color:${p.tx}">${p.short}</span></div><div class="pop-desc">${p.desc}</div>${tags}${socHTML}<div class="actions">${resetBtn}</div>`;
+  }else if(matches.length>1){
+    rbox.style.borderColor="var(--border-med)";
+    rc.innerHTML=`<p class="multi-match">Esta combinación encaja con más de una población diana. Revisa el contexto clínico para precisar.</p>${matches.map(p=>`<div class="multi-card" style="background:${p.bg};border-color:${p.bd}"><div class="multi-card-name" style="color:${p.tx}">${p.name}</div><div class="multi-card-desc" style="color:${p.tx}">${p.desc}</div></div>`).join("")}${tags}${socHTML}<div class="actions" style="margin-top:10px">${resetBtn}</div>`;
+  }else{
+    rbox.style.borderColor="#E8AAAA";
+    const partial=POPS.map(p=>{const ms=[];if(!p.need.includes(st.need))ms.push(`necesidad "${st.need}"`);if(!p.clin.includes(st.clin))ms.push(`sanitaria "${st.clin}"`);if(!ctxMatch(p))ms.push(`contexto "${fmtCtx(st.ctx)}"`);return{p,ms};}).filter(x=>x.ms.length===1);
+    let html=`<div class="no-match"><strong>Sin coincidencia exacta</strong>Ninguna de las 8 poblaciones diana tiene exactamente esta combinación de criterios.`;
+    if(partial.length){html+=`<div class="partial-title">Difieren en un solo criterio</div>`;partial.forEach(({p,ms})=>{html+=`<div class="partial-row"><span>${p.short}</span><span class="miss-tag">Discrepancia: ${ms[0]}</span></div>`;});}
+    html+=`</div><div class="actions" style="margin-top:10px">${resetBtn}</div>`;
+    rc.innerHTML=html;
+  }
+}
+
+function resetAll(){
+  Object.keys(st).forEach(k=>st[k]=null);
+  document.querySelectorAll(".opt").forEach(o=>Object.values(SC).forEach(c=>o.classList.remove(c)));
+  updateProg();
+  const hint=document.getElementById("hint");hint.style.display="flex";
+  hint.textContent="Completa las 4 dimensiones para identificar la población diana";
+  document.getElementById("rc").style.display="none";
+  document.getElementById("rbox").style.borderColor="var(--border)";
+}
+</script>
+</body>
+</html>
