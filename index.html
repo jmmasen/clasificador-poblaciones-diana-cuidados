@@ -208,6 +208,7 @@ function updateProg(){
 }
 
 function ctxMatch(p){return p.ctx.some(c=>c==="todos"||c===st.ctx);}
+function ctxExact(p){return p.ctx.includes(st.ctx);}
 
 function fmtCtx(v){
   return({
@@ -227,7 +228,9 @@ function classify(){
     hint.textContent=(r===4?"Completa las 4 dimensiones para identificar la población diana":`Falta${r>1?"n":""} ${r} dimensión${r>1?"es":""} por seleccionar`);
     return;
   }
-  const matches=POPS.filter(p=>p.need.includes(st.need)&&p.clin.includes(st.clin)&&ctxMatch(p));
+  const allMatches=POPS.filter(p=>p.need.includes(st.need)&&p.clin.includes(st.clin)&&ctxMatch(p));
+  const exactMatches=allMatches.filter(p=>ctxExact(p));
+  const matches=exactMatches.length>0?exactMatches:allMatches;
   hint.style.display="none";rc.style.display="block";
   const socNote=SOC_MSG[st.soc];
   const socHTML=socNote?`<div class="soc-alert">&#9432; ${socNote}</div>`:"";
